@@ -27,4 +27,6 @@ s = NLS_CNDS_a_function(s);
 s.a_xi(end+1) = s.au;
 s = NLS_CNDS_inverter(s);
 
+
+
 end

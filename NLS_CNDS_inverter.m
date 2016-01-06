@@ -6,7 +6,7 @@
 function[s] = NLS_CNDS_inverter(s)
 
 %     s.L(end+1) = exp(-sum(s.a_xi*s.dxi));
-    s.L(end+1) = exp(-trapz(s.a_xi)*s.dxi);
+    s.L(end+1) = s.L(1)*exp(-trapz(s.a_xi)*s.dxi);
     s.r = s.rho*s.L(end);    
     s.psi = (1/s.L(end))*s.u;
     

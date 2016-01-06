@@ -13,10 +13,22 @@ s.RHS_lin = eye(s.pts) + 1i*s.dxi/2*s.delrho;
         s.RHS_a_vec = -1*s.dxi/2*( 3*s.au*s.Drho*(s.rho.*s.u) - 1*s.au_old*s.Drho*(s.rho.*s.u_old) );
         s.RHS_vec = s.RHS_lin*s.u + s.RHS_nonlin_vec + s.RHS_a_vec;
         
+%         %r=rmax boundary conditions
+%         s.RHS_vec(end) = interp1(s.rho,s.u, s.rho(end)*(1-s.a_xi(end)*s.dxi) );
+%         s.RHS_vec(end) = s.RHS_vec(end)*(1-s.a_xi(end)*s.dxi);
+%         s.RHS_vec(end-1) = interp1(s.rho,s.u, s.rho(end-1)*(1-s.a_xi(end)*s.dxi) );
+%         s.RHS_vec(end-1) = s.RHS_vec(end-1)*(1-s.a_xi(end)*s.dxi);
+        
     else
         s.RHS_nonlin_vec = 1i*s.dxi/2*(1*abs(s.upred).^2.*s.upred + 1*abs(s.u).^2.*s.u); %I changed this from the github original, I think it was wrong before
         s.RHS_a_vec = -1*s.dxi/2*( 1*s.aupred*s.Drho*(s.rho.*s.upred) + 1*s.au*s.Drho*(s.rho.*s.u) );
         s.RHS_vec = s.RHS_lin*s.u + s.RHS_nonlin_vec + s.RHS_a_vec;
+        
+%         %r=rmax boundary conditions
+%         s.RHS_vec(end) = interp1(s.rho,s.u, s.rho(end)*(1-s.a_xi(end)*s.dxi) );
+%         s.RHS_vec(end) = s.RHS_vec(end)*(1-s.a_xi(end)*s.dxi);
+%         s.RHS_vec(end-1) = interp1(s.rho,s.u, s.rho(end-1)*(1-s.a_xi(end)*s.dxi) );
+%         s.RHS_vec(end-1) = s.RHS_vec(end-1)*(1-s.a_xi(end)*s.dxi);
         
     end
 

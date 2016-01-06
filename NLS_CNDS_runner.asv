@@ -1,32 +1,35 @@
 clear all
 close all
 
-s.pts = 400;
-rho_max = 40;
+s.pts = 200;
+rho_max = 16;
 s.rho = linspace(0,rho_max,s.pts)';
 s.drho = s.rho(2) - s.rho(1);
-s.dxi = .001/8;
+s.dxi = 0.1*s.drho^2;
 
-P = 1*2; %power in p_crits
-u_0 = sqrt(3.77*P);
-u_0 = 4;
-s.u = u_0*exp(-s.rho.^2);
-% s.u = 4./(1.+s.rho).^2;
-% s.u(end) = 0;
+P = 2*2; %power in p_crits
+% psi_ini_amp = sqrt(3.77*P);
+
+psi_ini_amp = 4;
+s.u = psi_ini_amp*exp(-(s.rho).^2);
 s.u_old = s.u;
 s.upred = s.u;
 
-s.a_xi = 0;
+s = NLS_CNDS_rad_deriv_2ndorder(s);
+s = NLS_CNDS_LHS(s);
+
+s.
+s = NLS_CNDS_a_function_gradpsi_L2norm(s);
 s.L = 1;
+s.a_xi = s.au;
 s.z = 0;
 
-s = NLS_CNDS_rad_deriv(s);
-s = NLS_CNDS_LHS(s);
+plot(s.rho,2*log10(s.u))
 
 %%
 onax_psisq = 0;
 m = 1;
-while onax_psisq(end)<60000
+while onax_psisq(end)<1e16
 % for m = 1:10*round(1/s.dxi)
     s = NLS_CNDS_stepper(s);
     onax_phase(m) = angle(s.psi(1));
@@ -34,36 +37,25 @@ while onax_psisq(end)<60000
     if mod(m,100) == 0
         
         energ = sum(abs(s.u).^2.*s.drho.*s.rho);
-%         figure(1)
-%         clf;
-%         plot(s.rho,(abs(s.u).^2))
-%         title(energ)
-
-        figure(2)
+        figure(1)
         clf;
         plot(s.r,(abs(s.psi).^2), 'r')
         title(strcat('intensity vs r at position = ', num2str(m*s.dxi)))
-        
-        figure(3)
-        clf;
-        plot(1:m,onax_phase)
-        title(energ)
-%         pause
 
-        figure(4)
+        figure(2)
         clf;
         plot(s.r,log10(abs(s.psi).^2), 'r')
         title(strcat('log of intensity vs r at position = ', num2str(m*s.dxi)))
         
-        figure(5)
+        figure(3)
         clf;
         plot(s.z(2:end),onax_phase)
         title('on axis phase vs z')
         
-        figure(6)
+        figure(4)
         clf;
         plot(s.r,angle(s.psi))
-        title(energ)
+        title(strcat('phase vs r, and the energy = ',num2str(energ)))
         
 %         pause;
         
@@ -72,3 +64,64 @@ while onax_psisq(end)<60000
     m = m+1;
 
 end
+
+        energ = sum(abs(s.u).^2.*s.drho.*s.rho);
+        figure(1)
+        clf;
+        plot(s.r,(abs(s.psi).^2), 'r')
+        title(strcat('intensity vs r at position = ', num2str(m*s.dxi)))
+
+        figure(2)
+        clf;
+        plot(s.r,log10(abs(s.psi).^2), 'r')
+        title(strcat('log of intensity vs r at position = ', num2str(m*s.dxi)))
+        
+        figure(3)
+        clf;
+        plot(s.z(2:end),onax_phase)
+        title('on axis phase vs z')
+        
+        figure(4)
+        clf;
+        plot(s.r,angle(s.psi))
+        title(strcat('phase vs r, and the energy = ',num2str(energ)))
+
+%%
+
+Zc_vals = linspace(.1433, .1433001, 1001);
+
+for m =1:length(Zc_vals)
+    
+    Zc = Zc_vals(m);
+
+    cutoff_start = 1000;
+    cutoff_end = 50000;
+    xax = log(Zc-s.z(cutoff_start+1:cutoff_end+1));
+    yax = log(2.2./sqrt(onax_psisq(cutoff_start:cutoff_end)));
+
+    [P,fitstruct] = polyfit(xax,yax,1);
+    fityax = polyval(P,xax);
+    resid(m) = fitstruct.normr;
+
+end
+
+[~,ind] = min(resid);
+Zc = Zc_vals(ind);
+
+xax = log(Zc-s.z(cutoff_start+1:cutoff_end+1));
+yax = log(2.2./sqrt(onax_psisq(cutoff_start:cutoff_end)));
+
+[P,fitstruct] = polyfit(xax,yax,1);
+fityax = polyval(P,xax);
+figure(5)
+clf
+plot(xax,yax)
+hold on;
+plot(xax,fityax,'r')
+    
+kap = exp(P(2))
+p = P(1)
+Zc
+
+
+
